@@ -1,0 +1,705 @@
+﻿@model IEnumerable<Main.Mvc.Models.MailInvoice.MailInvoice>
+
+@{
+    ViewBag.Title = "Trader";
+    Layout = "~/Views/Shared/_LayoutSellerDashboard.cshtml";
+
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Spathion</title>
+
+    <!-- Bootstrap core CSS-->
+    <link href="~/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom fonts for this template-->
+    <link href="~/assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+
+    <!-- Custom styles for this template-->
+    <link href="~/assets/css/admin.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/assets/css/jquery.dataTables.min.css">
+    <!-- Bootstrap core JavaScript-->
+    <script src="~/assets/vendor/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.2.7-rc.0/web3.min.js"></script>
+    @*<script src="~/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>*@
+    <script src="~/assets/vendor/bootstrap/js/bootstrap.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    @*<script src="~/assets/js/admin.min.js"></script>*@
+    <script src="~/assets/js/jquery.dataTables.min.js"></script>
+    @*<style>
+            table, th, td {
+                border: 1px solid black;
+            }
+        </style>*@
+
+</head>
+<body>
+    <div id="content-wrapper">
+        <div class="container">
+
+            <div class="float-right">
+
+                <div class="row">
+
+                    <p id="USDTCount"></p>
+                    &nbsp;&nbsp;&nbsp;
+                    <div id="idMetamaskValues">
+                        <a class="btn btn-primary" id="idMetamaskValuesId" width="48" height="48" onclick="metamaskFunction()">Connect Wallet</a>
+                    </div>
+                    <div id="idMetamaskInstallMetamask">
+                        <a id="idMetamaskInstallMetamaskId" class="btn btn-primary" width="48" height="48">Install Metamask</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+        <br />
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-header text-center">
+                    Trader Send Invoices
+                    @*<a class="btn btn-sm btn-secondary float-right mr-1 d-print-none" href="#" onclick="javascript:window.print();">
+                            <i class="fa fa-print"></i> Print
+                        </a>*@
+                </div>
+
+                <div class="card-body">
+
+
+                    <div class="table-responsive-sm">
+                        <table id="tableInvoice" class="table table-bordered table-striped">
+
+
+                            <thead>
+
+                                <tr>
+                                    <th>
+                                        Date
+                                    </th>
+
+                                    <th>
+                                        Name Of Receiver
+                                    </th>
+                                    <th>
+                                        Amount
+                                    </th>
+                                    @*<th>
+                                            Receiver GSTID
+                                        </th>
+
+                                        <th>
+                                            Email
+                                        </th>
+
+                                        <th>Response Auditor</th>*@
+                                    <th>
+                                        Status
+                                    </th>
+                                    <th>Response IRP</th>
+                                    <th> Funding Status</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            @if (item.invoiceJSON != null)
+                                                @item.invoiceJSON.billLists[0].transDocDate
+                                        </td>
+                                        <td>
+                                            @if (item.invoiceJSON != null)
+                                                @item.invoiceJSON.billLists[0].toTrdName
+                                        </td>
+                                        <td>
+                                            @if (item.invoiceJSON != null)
+                                            {
+                                                @if (item.Currency == null)
+                                                {
+                                                    @item.invoiceJSON.billLists[0].totInvValue
+                                                }
+                                                else
+                                                {
+                                                    @(@item.invoiceJSON.billLists[0].totInvValue+"("+item.Currency+")")
+                                                }
+                                            }
+                                        </td>
+                                        @*<td>
+                                                @item.invoiceJSON.billLists[0].toGstin
+                                            </td>
+                                            <td>
+                                                @item.ToEmail
+                                            </td>
+                                            <td>
+                                                @if ((int)@item.taxpractitionerstatus == 2)
+                                                {
+                                                    <p>Rejected</p>
+
+                                                }
+                                                @if ((int)@item.taxpractitionerstatus == 1)
+                                                {
+                                                    <p>Validated</p>
+                                                }
+                                                @if ((int)@item.taxpractitionerstatus == 0)
+
+                                                {
+                                                    <p>--</p>
+                                                }
+                                            </td>*@
+                                        <td>
+                                            @if ((int)@item.InvoiceStatus == 2)
+                                            {
+                                                <p>Rejected</p>
+
+                                            }
+                                            @if ((int)@item.InvoiceStatus == 1)
+                                            {
+                                                <p>Accepted</p>
+                                            }
+                                            @if ((int)@item.InvoiceStatus == 0)
+                                            {
+                                                <p>Created</p>
+                                            }
+                                        </td>
+                                        <td>Response IPRP</td>
+                                        <td align="center">
+                                            @if ((int)@item.invoiceFundingStatus == 0)
+                                            {
+
+                                                @*<a class="validateClass" style="background-color: #FFFF00" data-toggle="modal" data-target="#myModal" href=@("/taxinvoice/approvefunding?id=" + @item.Id)>Apply For Loan</a>*@
+                                                <a href="#" data-target="#my_modal" style="background-color: #FFFF00" data-toggle="modal" class="identifyingClass validateClass" data-id=@item.Id>Apply For Loan</a>
+
+                                            }
+                                            @if ((int)@item.invoiceFundingStatus == 1)
+                                            {
+                                                <p> Waiting for Admin Approval</p>
+                                            }
+                                            @if ((int)@item.invoiceFundingStatus == 2)
+                                            {
+                                                <p>Funded</p>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (item.invoiceJSON != null)
+                                            {
+                                                <a data-toggle="modal" data-id=@item.Id title="Add this item" class="open-AddBookDialog" href="#addBookDialog">Detail</a>
+                                                <a href=@(item.HashUrl) target="_blank">View File</a>
+                                            }
+                                            else
+                                            {
+                                                <a href=@(item.HashUrl) target="_blank">Uploaded File</a>
+                                            }
+
+
+                                        </td>
+                                    </tr>
+
+                                }
+                            </tbody>
+                        </table>
+                        <div id="addBookDialog" class="modal fade" role="dialog">
+                            <div class="modal-dialog" style="width:1250px;">
+
+                                <!-- Modal content-->
+                                <div class="modal-content" style="width:900px">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Invoice Detail</h4>
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+                                    </div>
+                                    <div class="modal-body">
+                                        <div id="table">
+                                        </div>
+
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div id="addBookDialog1" class="modal fade" role="dialog">
+                            <div class="modal-header">
+                                <button class="close" data-dismiss="modal">×</button>
+                                <h3>Modal header</h3>
+                            </div>
+                            <div class="modal-body">
+                                <table id="table1">
+                                    <tr>
+                                        <td>
+                                            From
+                                        </td>
+                                        <td>
+                                            From GST
+                                        </td>
+                                        <td>
+                                            To
+                                        </td>
+                                        <td>
+                                            TO GST
+                                        </td>
+                                        <td>Total Value</td>
+                                        <td>CGST Value</td>
+                                        <td>SGST Value</td>
+                                        <td>IGST Value</td>
+                                        <td>Total Invoice Value</td>
+                                    </tr>
+                                </table>
+                                <input type="text" name="bookId" id="bookId" value="" />
+                            </div>
+                        </div>
+
+                        <!--<div class="modal fade" id="myModal" role="dialog">
+                            <div class="modal-dialog">-->
+                        <!-- Modal content-->
+                        <!--<div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Apply For Loan</h4>
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Some text in the modal.</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>-->
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="my_modal" tabindex="-1" role="dialog" aria-labelledby="my_modalLabel">
+                <div class="modal-dialog" role="dialog">
+                    <div class="modal-content">
+                        @using (Html.BeginForm("LoanApply", "LoanApplication", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+                        {
+                            <div class="modal-header">
+                                <h4 class="modal-title" id="myModalLabel">Apply for Loan</h4>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+                            </div>
+                            @*<div class="modal-body">
+                                    <div class="form-group">
+                                        <div class="form-label-group">
+                                            <input type="text" id="PONO" class="form-control" required="required" autofocus="autofocus" name="PONO" maxlength="60">
+                                            <label for="PONO">PO No</label>
+                                        </div>
+                                        <div class="form-label-group">
+                                            <input type="text" id="NameBuyer" class="form-control" required="required" autofocus="autofocus" name="NameBuyer" maxlength="60">
+                                            <label for="NameBuyer">Name Of Buyer</label>
+                                        </div>
+                                    </div>
+                                </div>*@
+                            <div class="col-sm-2">
+                            </div>
+                            <div class="col-sm-8">
+
+                                <table>
+                                    <tr>
+                                        <td>Loan Amount(USDT)</td>
+                                        <td>
+                                            <input type="number" required="required" id="LoanAmount" name="LoanAmount" value="" />
+                                        </td>
+                                    </tr>
+                                    <tr><td>Loan Duration(Days)</td><td> <input type="number" required="required" id="LoanDuration" name="LoanDuration" value="" /></td></tr>
+                                </table>
+                                <input type="hidden" name="hiddenValue" id="hiddenValue" value="" />
+
+
+                            </div>
+                            <div class="col-sm-2">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary" onclick="applyForLoan()">Submit</button>
+                            </div>
+                        }
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<script>
+    async function applyForLoan() {
+        var web3;
+        var abivalue;
+        $.getJSON("/Artifacts/InvoiceNFT.json", function (result) {
+            console.log(result.abi);
+            abivalue = result.abi;
+            console.log("abi value: " + abivalue);
+            var contactAddress = "0x652e2b34C5820E1444E4F3069e02a8268c38D74B";
+            try {
+                web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
+            } catch (error) {
+                alert(error)
+            }
+            const contractInvoiceNFT = new web3.eth.Contract(
+                abivalue,
+                contactAddress
+            );
+            console.log("contract initialization");
+            const accounts = "0x94c6fC1a2e4e52FE1410392c1e3BB991FAb0cCAf";// await window.ethereum.request({ method: 'eth_requestAccounts' });
+            const metamask = "0x94c6fC1a2e4e52FE1410392c1e3BB991FAb0cCAf";
+            var Mint =  contractInvoiceNFT.methods.mint("url", 123, 1230, 12).encodeABI();
+
+           // const Mint = await contractInvoiceNFT.methods.mint("url", 123, 1230, 12);//
+               // .encodeABI();
+            const txParameters = {
+
+                from: accounts,
+                gas: 500000,
+                data: Mint
+            };
+
+
+            let resultTransaction =  window.ethereum.request({
+                method: 'eth_sendTransaction',
+                params: [txParameters]
+            }).then(result)
+            {
+                console.log("result");
+            }
+            console.log("test");
+            //ethereum.request({
+            //    method: 'eth_sendTransaction',
+            //    params: [{
+            //        from: accounts,
+            //        to: "0x6C2bF1924434E463f1ac5d013e157738a953F134",
+            //        value: "1"
+
+            //    }
+            //    ]
+            //})
+            //    .then(result)
+            //{
+            //    console.log("test");
+            //    contractInvoiceNFT.methods.mint("url", 10, 1230, 12).send({ from: accounts, gas: 100000 }).then(function (result) {
+            //        console.log("test--mint");
+            //    });
+
+            //}
+
+        })
+    }
+</script>
+<script type="text/javascript">
+    $(function () {
+        $(".identifyingClass").click(function () {
+            var my_id_value = $(this).data('id');
+            console.log(my_id_value);
+            // $(".modal-body #hiddenValue").val(my_id_value);
+            $('#hiddenValue').val(my_id_value);
+        })
+    });
+</script>
+<script language="javascript" type="text/javascript">
+    window.addEventListener('load', function () {
+        var web3;
+        var links, index, link;
+
+        links = document.getElementsByClassName('validateClass');
+        for (index = 0; index < links.length; ++index) {
+            link = links[index];
+            //if (link.href.indexOf('superuser') >= 0) {
+            link.style.display = "none";
+            // break;
+            // }
+        }
+        // web3js = new Web3(web3.currentProvider);
+        if ((typeof window.ethereum !== 'undefined')
+            || (typeof window.web3 !== 'undefined')) {
+            console.log('web3 is enabled')
+            if (window.web3.currentProvider.isMetaMask === true) {
+                console.log('MetaMask is active');
+                try {
+                    metamaskFunction();
+                }
+                catch (err) {
+                    //document.getElementById("demo").innerHTML = err.message;
+                }
+                document.getElementById("idMetamaskInstallMetamask").disabled = true;
+                document.getElementById("idMetamaskInstallMetamaskId").value = "#";
+                document.getElementById("idMetamaskInstallMetamaskId").innerText = "";
+                document.getElementById("idMetamaskInstallMetamaskId").classList.remove("btn");
+                document.getElementById("idMetamaskInstallMetamaskId").classList.remove("btn-primary");
+            } else {
+                console.log('MetaMask is not available');
+                document.getElementById("idMetamaskValues").disabled = true;
+                document.getElementById("idMetamaskValuesId").value = "#";
+                document.getElementById("idMetamaskValuesId").innerText = "";
+                document.getElementById("idMetamaskValuesId").classList.remove("btn");
+                document.getElementById("idMetamaskValuesId").classList.remove("btn-primary");
+            }
+        } else {
+            console.log('web3 is not found');
+            //   document.getElementById("idMetamaskInstallMetamask").disabled = true;
+            // $("#idMetamaskInstallMetamask").children().prop('disabled', true);
+            document.getElementById("idMetamaskValues").disabled = true;
+            document.getElementById("idMetamaskValuesId").value = "#";
+            document.getElementById("idMetamaskValuesId").innerText = "";
+            document.getElementById("idMetamaskValuesId").classList.remove("btn");
+            document.getElementById("idMetamaskValuesId").classList.remove("btn-primary");
+            //document.getElementById("idMetamaskInstallMetamaskId").value = "#";
+            //document.getElementById("idMetamaskInstallMetamaskId").innerText = "";
+            //document.getElementById("idMetamaskInstallMetamaskId").classList.remove("btn");
+            //document.getElementById("idMetamaskInstallMetamaskId").classList.remove("btn-info");
+
+
+
+        }
+    })
+    //var web3;
+    var web3;//= new Web3();
+    //function handleAccountsChanged(accounts) {
+    //    console.log('Calling HandleChanged')
+
+    //    if (accounts.length === 0) {
+    //        console.log('Please connect to MetaMask.');
+    //        //  $('#enableMetamask').html('Connect with Metamask')
+    //    } else if (accounts[0] !== currentAccount) {
+    //        currentAccount = accounts[0];
+    //        //  $('#enableMetamask').html(currentAccount)
+    //        $('#status').html('')
+
+    //        if (currentAccount != null) {
+    //            // Set the button label
+    //            // $('#enableMetamask').html(currentAccount)
+    //        }
+    //    }
+    //    console.log('WalletAddress in HandleAccountChanged =' + walletAddress)
+    //}
+    window.UserWalletAddress = null;
+    async function metamaskFunction() {
+        //  return new Web3(window['ethereum'] || window.web3.currentProvider)
+        //   await window.web3.currentProvider.enabled;
+        // web3 = new Web3(window.web3.currentProvider);
+        //await window.ethereum.send('eth_requestAccounts');
+        //  window.web3 = new Web3(window.ethereum);
+        console.log('Test');
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        window.ethereum
+            .request({
+                method: 'wallet_requestPermissions',
+                params: [{ eth_accounts: {} }],
+            })
+            .then((permissions) => {
+                const accountsPermission = permissions.find(
+                    (permission) => permission.parentCapability === 'eth_accounts'
+                );
+                if (accountsPermission) {
+                    console.log('eth_accounts permission successfully requested!');
+                }
+            })
+            .catch((error) => {
+                if (error.code === 4001) {
+                    // EIP-1193 userRejectedRequest error
+                    console.log('Permissions needed to continue.');
+                } else {
+                    console.error(error);
+                }
+            });
+        if (!accounts) { return; }
+        const balance = await ethereum.request({
+            method: 'eth_getBalance',
+            params: [accounts[0], "latest"],
+        })
+        const read = parseInt(balance) / 10 ** 18;
+        console.log("Balance ", read.toFixed(5));
+        window.UserWalletAddress = accounts[0];
+
+
+        let tokenAddress = "0xd5B5eC88bb9B6026c4981725e5896691bEBA3fd8";
+        // let walletAddress = "0x2D8F9b18676c50B8E09D3Ce4e804e8AA5E99eB1C";
+        let walletAddress = accounts[0];
+        //  const rpcURL = 'https://ropsten.infura.io/v3/dda54cc3eadc47539ba1ab0936e55fb8'
+        const rpcURL = 'https://ropsten.infura.io/v3/dda54cc3eadc47539ba1ab0936e55fb8'
+        const web3 = new Web3(rpcURL)
+        // The minimum ABI to get ERC20 Token balance
+        let minABI = [
+            // balanceOf
+            {
+                "constant": true,
+                "inputs": [{ "name": "_owner", "type": "address" }],
+                "name": "balanceOf",
+                "outputs": [{ "name": "balance", "type": "uint256" }],
+                "type": "function"
+            },
+            // decimals
+            {
+                "constant": true,
+                "inputs": [],
+                "name": "decimals",
+                "outputs": [{ "name": "", "type": "uint8" }],
+                "type": "function"
+            }
+        ];
+        let contract = new web3.eth.Contract(minABI, tokenAddress);
+        // Get ERC20 Token contract instance
+        // let contract = new web3.eth.contract(minABI).at(tokenAddress);
+        //.call();
+        // var balance1 = await contract.methods.balanceOf(walletAddress);
+        // Call balanceOf function
+        //var balance = "";
+        var balance1 = "";
+        async function getBalance() {
+            // balance = await contract.methods.balanceOf(walletAddress).call();
+            // balance1 = balance;
+            return (await contract.methods.balanceOf(walletAddress).call());
+        }
+        getBalance().then(function (result) {
+            const read = parseInt(result) / 10 ** 6;
+            console.log("Balance 11",);
+            document.getElementById("USDTCount").innerHTML = "USDT :" + read.toFixed(5);
+            //document.getElementById("USDTCount").style.color = "blue";
+
+            document.getElementById("idMetamaskValues").disabled = true;
+            document.getElementById("idMetamaskValuesId").value = "#";
+            document.getElementById("idMetamaskValuesId").innerText = "";
+            document.getElementById("idMetamaskValuesId").classList.remove("btn");
+            document.getElementById("idMetamaskValuesId").classList.remove("btn-primary");
+            links = document.getElementsByClassName('validateClass');
+            for (index = 0; index < links.length; ++index) {
+                link = links[index];
+                //if (link.href.indexOf('superuser') >= 0) {
+                link.style.display = "";
+                // break;
+                // }
+            }
+            //console.log("Balance 11", web3.utils.fromWei(result));
+        });
+
+
+        //var tokenInst = new web3.eth.Contract(tokenABI, tokenAddress);
+        //  var tokenInst = new web3.eth.Contract(minABI, "0xdac17f958d2ee523a2206206994597c13d831ec7");
+        //  var tokenInst = new web3.eth.Contract(accounts[0]);
+        //usdt=  0xdac17f958d2ee523a2206206994597c13d831ec7
+        // accounts
+        tokenInst.methods.balanceOf(accounts[0]).call().then(function (bal) {
+            console.log(bal);
+        })
+        getBalance().then(function (result) {
+            console.log(result);
+        });
+        //ethereum
+        //    .request({ method: 'eth_requestAccounts' })
+        //    .then(handleAccountsChanged)
+        //    .catch((err) => {
+        //        if (err.code === 4001) {
+        //            // EIP-1193 userRejectedRequest error
+        //            // If this happens, the user rejected the connection request.
+        //            console.log('Please connect to MetaMask.');
+        //            $('#status').html('You refused to connect Metamask')
+        //        } else {
+        //            console.error(err);
+        //        }
+        //    });
+
+
+    }
+
+</script>
+<script language="javascript" type="text/javascript">
+    $(document).on("click", ".open-AddBookDialog", function () {
+        var invoiceID = $(this).data('id');
+        //debugger;
+        var url = "/ViewInvoice/GetMailInvoice?id=" + invoiceID;
+        // $(".modal-body #bookId").val(myBookId);
+        var html = "<table>";
+        $.ajaxSetup({ async: false });
+
+        $.ajax({
+            url: url,
+            async: "false",
+            success: function (result) {
+
+                debugger;
+                console.log(result);
+                //$("#div1").html(result);
+                html += "<tr><td>From</td><td>From GST</td><td>To</td><td>TO GST</td><td>Total Value</td><td>CGST Value</td><td>SGST Value</td><td>IGST Value</td><td>Total Invoice Value</td></tr>";
+                html += "<tr><td>";
+                html += result.invoiceJSON.billLists[0].fromTrdName;
+                html += "</td>";
+                html += "<td>";
+
+                html += result.invoiceJSON.billLists[0].fromGstin;
+                html += "</td><td>";
+                html += result.invoiceJSON.billLists[0].toTrdName;
+                html += "</td><td>";
+                html += result.invoiceJSON.billLists[0].toGstin;
+                html += "</td><td>";
+
+                html += result.invoiceJSON.billLists[0].totalValue;
+                html += "</td><td>";
+                html += result.invoiceJSON.billLists[0].cgstValue;
+                html += "</td><td>";
+                html += result.invoiceJSON.billLists[0].sgstValue;
+                html += "</td><td>";
+                html += result.invoiceJSON.billLists[0].igstValue;
+                html += "</td><td>";
+                html += result.invoiceJSON.billLists[0].totInvValue;
+                html += "</td><td>";
+                html += "</td><tr>";
+
+                html += "</table><br/><br/>";
+                html += "<table><tr><td>Item No</td><td>Product Name</td><td>Quantity</td><td>Taxable Amount</td></tr>";
+                //foreach (int k = 0; k < item.invoiceJSON.billLists[j].itemList.Length; k++)
+                for (i = 0; i < result.invoiceJSON.billLists[0].itemList.length; i++) {
+                    html += "<tr><td>";
+                    html += result.invoiceJSON.billLists[0].itemList[i].itemNo;
+                    html += "</td><td>";
+                    html += result.invoiceJSON.billLists[0].itemList[i].productName;
+
+                    html += "</td><td>";
+                    html += result.invoiceJSON.billLists[0].itemList[i].quantity;
+                    html += "</td><td>";
+                    //html += result.invoiceJSON.billLists[0].itemList[i].Rate;
+                    //html += "</td><td>";
+                    html += result.invoiceJSON.billLists[0].itemList[i].taxableAmount;
+                    html += "</td></tr>";
+                }
+                html += "</table >";
+                $(".modal-body #table").append(html);
+                $('#table').html(html);
+            }
+
+        });
+
+        // $(".modal-body #table").append(html);
+        // As pointed out in comments,
+        // it is unnecessary to have to manually call the modal.
+        // $('#addBookDialog').modal('show');
+    });
+</script>
+<script type="text/javascript">
+
+    $(document).ready(function
+        () {
+        $.noConflict();
+        $('#tableInvoice').dataTable({
+            "order": []
+        });
+    });
+</script>
+
+
